@@ -7,6 +7,7 @@ use std::vec::Vec;
 use std::iter;
 use std::str::FromStr;
 use std::borrow::ToOwned;
+use std::fmt;
 
 struct Command {
     cmd: String,
@@ -67,8 +68,7 @@ impl FromStr for Message {
         if trailing.is_none() { s = &s[..s.len() -2] }
         let mut args: Vec<&str> = s.splitn(14, ' ').filter(|s| !s.is_empty()).collect();
         args.push(trailing.unwrap_or("").trim());
-        println!("### DEBUG {}", args[args.len()-1].trim() == "VERSION");
-
+    
         let msg = Message::new(prefix, command, Some(args.clone())).unwrap();
         println!("{}\n{}\n{}", msg.prefix.unwrap_or(String::new()), msg.command.cmd, msg.command.args.join("/"));
         Message::new(prefix, command, Some(args))
@@ -76,12 +76,11 @@ impl FromStr for Message {
 }
 
 fn main() {
-    let stream = TcpStream::connect("127.0.0.1:6667").unwrap();
+    let stream = TcpStream::connect("localhost:6667").unwrap();
     let tmpstrm = stream.try_clone().unwrap();
 
-    send_stream(&tmpstrm, "USER IslaBot 0 * :Bot written in Rust by Kosan Nicholas").is_ok();
-    send_stream(&tmpstrm, "NICK IslaBot").is_ok();
-    send_stream(&tmpstrm, "JOIN #Omnius").is_ok();
+    send_stream(&tmpstrm, "USER Isla * 0 :Isla").is_ok();
+    send_stream(&tmpstrm, "NICK Isla").is_ok();
 
     let t = thread::spawn(move || {
         let mut bufr = BufReader::new(stream.try_clone().unwrap());
@@ -90,21 +89,28 @@ fn main() {
             let mut r = String::new();
             bufr.read_line(&mut r).is_ok();
             if r.contains("PING"){
-                println!("FOUND PING");
-                send_stream(&stream, "PONG");
-                bufw.flush();
+                let resp = r.find(":").map(|i| &r[i..]);
+                send_stream(&stream, &format!("PONG {}", resp.unwrap().trim()));
             }
             let msg = Message::from_str(&r).unwrap();
 
-            if msg.command.cmd == "PRIVMSG" {
-                if msg.command.args.contains("VERSION") {
-                    println!("INSERT VERSION RESPONSE HERE");
+            match msg.command.cmd.to_string() {
+                ref s if s == "PRIVMSG" => println!("<{}>: {}", nick_from_prefix(&*msg.prefix.unwrap()), msg.command.args[msg.command.args.len()-1]),
+                ref s if s == "MODE" => {
+                    send_stream(&stream, "JOIN #dev");
+                    ();
                 }
+                _ => ()
+            }
+
+            if msg.command.cmd == "PRIVMSG" {
             }
             println!("{}", &r);
             println!("--------");
         }
     });
+
+    send_stream(&tmpstrm, "JOIN #dev");
 
     t.join().is_ok();
 }
@@ -114,4 +120,8 @@ fn send_stream (mut stream: &TcpStream, msg: &str) -> std::io::Result<()> {
     stream.write(msg.as_bytes()).is_ok();
     stream.write(b"\r\n").is_ok();
     stream.flush()
+}
+
+fn nick_from_prefix(prefix: &str) -> &str {
+    prefix.find("!").map(|i| &prefix[..i]).unwrap()
 }
