@@ -1,1 +1,1 @@
-bot: ./target/release/main
+bot: ./target/release/isla_bot
