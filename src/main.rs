@@ -76,7 +76,7 @@ impl FromStr for Message {
 }
 
 fn main() {
-    let stream = TcpStream::connect("localhost:6667").unwrap();
+    let stream = TcpStream::connect("64.86.243.181:6667").unwrap();
     let tmpstrm = stream.try_clone().unwrap();
 
     send_stream(&tmpstrm, "USER Isla * 0 :Isla").is_ok();
@@ -97,7 +97,7 @@ fn main() {
             match msg.command.cmd.to_string() {
                 ref s if s == "PRIVMSG" => println!("<{}>: {}", nick_from_prefix(&*msg.prefix.unwrap()), msg.command.args[msg.command.args.len()-1]),
                 ref s if s == "MODE" => {
-                    send_stream(&stream, "JOIN #dev");
+                    send_stream(&stream, "JOIN #omnius");
                     ();
                 }
                 _ => ()
