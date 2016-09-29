@@ -8,7 +8,7 @@ mod irc;
 
 fn main() {
     // TODO: Move server connection info into a config file
-    let stream = TcpStream::connect("localhost:6667").unwrap();
+    let stream = TcpStream::connect("130.239.18.119:6667").unwrap();
     let tmpstrm = stream.try_clone().unwrap();
 
     send_stream(&tmpstrm, "USER Isla * 0 :Isla").is_ok();
