@@ -4,25 +4,25 @@ struct Message {
     sender: Option<Sender>,
     // server: &str, // First need to have a way to handle multiple servers
     contents: Command,
-    raw: &str
+    raw: String
 }
 
 struct Sender {
-    nick: &str,
-    hostmask: &str,
+    nick: String,
+    hostmask: String,
 }
 
 struct Command {
-    command: &str, // Eventually to be made into an enum or struct
-    parameters: Vec<&str>
+    command: String, // Eventually to be made into an enum or struct
+    parameters: Vec<String>
 }
 
 impl Message {
-    fn new(sender: Option<Sender>, contents: Command, raw: &str) -> Result<Message> {
+    fn new(sender: Option<Sender>, contents: Command, raw: &str) -> Result<Message, &'static str> {
         Ok(Message{
             sender: sender,
             contents: contents,
-            raw: raw,
+            raw: raw.to_owned(),
         });
     }
 
