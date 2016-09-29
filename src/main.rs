@@ -4,10 +4,10 @@ use std::net::TcpStream;
 use std::io::{BufReader, BufWriter};
 use std::string::ToString;
 use std::vec::Vec;
-use std::iter;
 use std::str::FromStr;
 use std::borrow::ToOwned;
-use std::fmt;
+
+
 
 struct Command {
     cmd: String,
@@ -76,6 +76,7 @@ impl FromStr for Message {
 }
 
 fn main() {
+    // TODO: Move server connection info into a config file
     let stream = TcpStream::connect("64.86.243.181:6667").unwrap();
     let tmpstrm = stream.try_clone().unwrap();
 
