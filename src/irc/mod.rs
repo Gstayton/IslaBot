@@ -1,1 +1,3 @@
-pub mod message;
+pub use irc::message::Message;
+
+mod message;
