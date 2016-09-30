@@ -76,7 +76,7 @@ impl Message {
         };
         Message::new(Some(sender), contents, line)
     }
-
+    //TODO Fix nick parsing error
     fn nick_from_prefix(prefix: &str) -> &str {
         prefix.find("!").map(|i| &prefix[..i]).unwrap_or(prefix)
     }

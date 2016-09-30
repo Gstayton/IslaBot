@@ -1,18 +1,25 @@
 use std::io::prelude::*;
 use std::thread;
-use std::net::TcpStream;
+use std::net::{TcpStream, ToSocketAddrs};
+use std::net::SocketAddr;
 use std::io::{BufReader, BufWriter};
-use std::vec::Vec;
+use std::str::FromStr;
 
 mod irc;
 
 fn main() {
+    let config = irc::Config::read_config();
     // TODO: Move server connection info into a config file
-    let stream = TcpStream::connect("130.239.18.119:6667").unwrap();
+    let mut server_details: String = String::new();
+    server_details.push_str(&config.server.host);
+    server_details.push_str(":");
+    server_details.push_str(&config.server.port);
+    let socket: SocketAddr = server_details.parse().unwrap(); 
+    let stream = TcpStream::connect(socket).unwrap();
     let tmpstrm = stream.try_clone().unwrap();
 
-    send_stream(&tmpstrm, "USER Isla * 0 :Isla").is_ok();
-    send_stream(&tmpstrm, "NICK Isla").is_ok();
+    send_stream(&tmpstrm, &config.user.user).is_ok();
+    send_stream(&tmpstrm, &config.user.nick).is_ok();
 
     let t = thread::spawn(move || {
         let mut bufr = BufReader::new(stream.try_clone().unwrap());
@@ -45,8 +52,6 @@ fn main() {
             println!("--------");
         }
     });
-
-    send_stream(&tmpstrm, "JOIN #dev");
 
     t.join().is_ok();
 }
