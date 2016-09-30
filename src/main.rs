@@ -16,8 +16,9 @@ fn main() {
     server_details.push_str(&config.server.port);
     let socket: SocketAddr = server_details.parse().unwrap(); 
     let stream = TcpStream::connect(socket).unwrap();
-    let tmpstrm = stream.try_clone().unwrap();
 
+    let tmpstrm = stream.try_clone().unwrap();
+    println!("Sending Client Info");
     send_stream(&tmpstrm, &config.user.user).is_ok();
     send_stream(&tmpstrm, &config.user.nick).is_ok();
 
