@@ -71,12 +71,11 @@ impl Message {
             parameters: params,
         };
         let sender = Sender {
-            nick: String::new(),
+            nick: nick.unwrap_or("NO NICK FOUND").to_string(),
             hostmask: String::new(),
         };
         Message::new(Some(sender), contents, line)
     }
-    //TODO Fix nick parsing error
     fn nick_from_prefix(prefix: &str) -> &str {
         prefix.find("!").map(|i| &prefix[..i]).unwrap_or(prefix)
     }
