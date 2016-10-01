@@ -9,12 +9,16 @@ mod irc;
 
 fn main() {
     let config = irc::Config::read_config();
-    // TODO: Move server connection info into a config file
     let mut server_details: String = String::new();
     server_details.push_str(&config.server.host);
     server_details.push_str(":");
     server_details.push_str(&config.server.port);
-    let socket: SocketAddr = server_details.parse().unwrap(); 
+    let socket: SocketAddr;
+    match server_details.parse() {
+        Ok(s) => socket = s,
+        Err(e) => panic!("Error parsing SockAddr: {}", e)
+    }
+    
     let stream = TcpStream::connect(socket).unwrap();
 
     let tmpstrm = stream.try_clone().unwrap();
