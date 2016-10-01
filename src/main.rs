@@ -18,9 +18,10 @@ fn main() {
     let stream = TcpStream::connect(socket).unwrap();
 
     let tmpstrm = stream.try_clone().unwrap();
-    println!("Sending Client Info");
-    send_stream(&tmpstrm, &config.user.user).is_ok();
-    send_stream(&tmpstrm, &config.user.nick).is_ok();
+    //TODO Robust command sending system, avoid relying on static strings,
+    //replace with enums
+    send_stream(&tmpstrm, &("USER ".to_string() + &config.user.user)).is_ok();
+    send_stream(&tmpstrm, &("NICK ".to_string() + &config.user.nick)).is_ok();
 
     let t = thread::spawn(move || {
         let mut bufr = BufReader::new(stream.try_clone().unwrap());
