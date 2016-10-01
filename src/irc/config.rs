@@ -17,6 +17,7 @@ pub struct UserInfo {
 }
 
 impl Config {
+    //TODO Add error handling
     pub fn read_config() -> Config {
         let password: Option<String> = match env::var("ISLABOT_USER_PASS") {
             Ok(pass) => Some(pass),
